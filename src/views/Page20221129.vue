@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import {
+  computed,
+  onMounted,
+  onUpdated,
+  reactive,
+  ref,
+  watch,
+  watchEffect,
+} from "vue";
 import { $ref, $computed } from "vue/macros";
 
 const msg = ref<string | number>("hello vue3");
@@ -20,6 +28,10 @@ const increment = () => {
   state.count++;
   obj.foo.value = 3;
   someCount++;
+  items.value.push({
+    message: "ddd",
+    age: 3,
+  });
 };
 
 const obj = {
@@ -34,6 +46,74 @@ const isOk = computed<number | boolean>(() => state.count > 3);
 const _isOk = $computed<number | boolean>(() => state.count > 3);
 
 console.log("isok:", isOk.value, _isOk);
+
+const items = ref([{ message: "Foo" }, { message: "Bar" }]);
+
+function greet(event: any) {
+  //   alert(`Hello ${state.count}!`)
+  console.log(event.target.tagName);
+  // `event` 是 DOM 原生事件
+  //   if (event) {
+  //     alert(event.target.tagName)
+  //   }
+}
+
+let text = $ref("");
+
+const inputHandler = (event: any) => {
+  console.log(event);
+  text = event.target.value;
+};
+
+const inputChange = (e: any) => {
+  console.log("change:", e);
+};
+
+onMounted(() => {
+  console.log("mounted ...");
+});
+
+onUpdated(() => {
+  console.log("onupdated");
+});
+
+const question = $ref("");
+
+watch([question, () => state.count], (pre, old) => {
+  console.log("watch:", pre, old);
+});
+
+watchEffect(() => {
+  console.log("watcheffect::", question);
+});
+
+const flushCount = ref(0);
+
+const flushBtnRef = ref<HTMLButtonElement | null>(null);
+
+const incrementFlushCount = () => {
+  flushCount.value++;
+};
+
+watchEffect(
+  () => {
+    console.log(
+      "test watcheffect flush:",
+      flushCount.value,
+      flushBtnRef.value?.innerText
+    );
+  },
+  {
+    flush: "post",
+  }
+);
+
+// input 自动聚焦
+const inputRef = ref<HTMLInputElement | null>(null);
+
+onMounted(() => {
+  inputRef.value?.focus();
+});
 </script>
 
 <template>
@@ -73,6 +153,28 @@ console.log("isok:", isOk.value, _isOk);
         {{ obj.foo.value + 1 }}
       </li>
       <li>{{ someCount }}</li>
+      <li>
+        <h3>模板引用</h3>
+        <input type="text" ref="inputRef" />
+      </li>
     </ol>
+    <p v-for="({ message = '', age }, index) in items" :key="index">
+      {{ message }} - {{ age }}
+    </p>
+    <!-- `greet` 是上面定义过的方法名 -->
+    <button @click="greet">Greet</button>
+
+    <input
+      type="text"
+      :value="text"
+      @input="inputHandler"
+      @change="inputChange"
+    />
+
+    <input type="text" v-model="question" />
+
+    <button @click="incrementFlushCount" ref="flushBtnRef">
+      {{ flushCount }}
+    </button>
   </div>
 </template>
