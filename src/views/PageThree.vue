@@ -6,11 +6,13 @@
     <DemoOne></DemoOne>
     {{ provideDD }}
     <h4>{{ $calc(3, 7) }}</h4>
+    <ChildItem ref="child" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { getCurrentInstance, inject } from "vue";
+import { getCurrentInstance, inject, onMounted, ref } from "vue";
+import ChildItem from "@/components/ChildItem.vue";
 
 const vFocus = {
   mounted(el: HTMLInputElement) {
@@ -28,6 +30,12 @@ console.log("instance:", instance?.proxy?.$msg);
 const provideDD = inject("provideDD");
 
 console.log(instance?.proxy?.$calc(7, 8));
+
+const child = ref<InstanceType<typeof ChildItem> | null>(null)
+
+onMounted(() => {
+  console.log('ss:', child.value?.b)
+})
 </script>
 
 <style lang="css" scoped>
