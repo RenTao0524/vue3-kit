@@ -30,6 +30,11 @@ const router = createRouter({
       name: "pageTwo",
       component: () => import("../views/PageTwo.vue"),
     },
+    {
+      path: "/pageThree",
+      name: "pageThree",
+      component: () => import("../views/PageThree.vue"),
+    },
   ],
 });
 
